@@ -34,6 +34,7 @@ STALE_DAYS = 90
 
 SKIP_PREFIXES = ("notes/", "lessons/", ".github/", "scripts/")
 SKIP_FILES = set(POINTER_FILES) | {"report/report_nodes.md"}
+FRONTMATTER_EXEMPT = {"README.md"}
 
 errors, warnings = [], []
 
@@ -87,6 +88,8 @@ for name in POINTER_FILES:
 # 2. Frontmatter present with status + verified; staleness warning.
 today = datetime.date.today()
 for rel, text in md_files():
+    if rel in FRONTMATTER_EXEMPT:
+        continue
     m = re.match(r"^---\n(.*?)\n---\n", text, re.S)
     if not m:
         errors.append(f"{rel}: missing frontmatter")

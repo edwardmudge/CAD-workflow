@@ -1,43 +1,36 @@
----
-status: active
-verified: 2026-08-06
----
 # Engineering Workflow Template
 
 A single-repo workflow for running an engineering project, hardware or
-software, alongside an AI coding agent. Decisions, mistakes, and terminology
-get captured as dated, numbered entries as you work, not left in chat
-history; nothing counts as done without a measured Verify. The agent works
-from one fixed rule file and a ranked truth ladder, and never marks its own
-work complete.
+software, alongside an AI coding agent. Decisions and mistakes are logged as
+dated, numbered entries as you work, and nothing is marked done without a
+measured Verify.
 
-Click "Use this template" above to start a project from this. Day-one setup,
-about an hour: SETUP.md. Method and citations behind every convention:
-REFERENCES.md.
+## Getting started
 
-What a project built on this gives you: PLAN.md tracks work with Verify
-gates; DECISIONS.md and POSTMORTEMS.md are append-only logs; GLOSSARY.md
-keeps terms consistent. Rules the agent follows: AGENTS.md.
+1. Click **Use this template** above and clone your new repository.
+2. Work through the day-one checklist in `SETUP.md` (about an hour).
+3. Read `AGENTS.md` for the rules your agent works from.
+
+## Repository layout
+
+- `AGENTS.md` - canonical rules for any AI agent working in the repo
+- `PLAN.md` - work items with Verify gates, and the open questions register
+- `DECISIONS.md`, `POSTMORTEMS.md` - append-only logs, numbered `D-NN` / `P-NN`
+- `GLOSSARY.md` - agreed terminology
+- `notes/` - dated scratch notes, low authority
+- `lessons/` - close-out staging for Obsidian export
+- `report/` - report module scaffold, with agent output limited to `report/report_nodes.md`
+- `code/`, `HARDWARE.md`, `VAULT.md` - optional modules, inert until their file or folder exists
+- `scripts/`, `.github/workflows/checks.yml` - the CI that enforces all of the above
+
+## Method
+
+Provenance and citations behind every convention in this template: `REFERENCES.md`.
 
 ## Agent Notes
 
-### Core files
-Always present: AGENTS.md (canonical agent rules; vendor files are pointers
-to it), PLAN.md (work items with Verify gates, and the open questions
-register), DECISIONS.md and POSTMORTEMS.md (append-only logs, D and P
-numbers), GLOSSARY.md (terms), notes/ (dated scratch, low authority,
-template in notes/_template.md), lessons/ (close-out staging for Obsidian
-export), scripts/check_docs.py and .github/workflows/checks.yml (CI).
-
-### Optional modules
-Inert until its artefact exists: report/ (human-written Typst plus
-report_nodes.md, the agent's only report channel), code/ (source and tests,
-with code/check.sh as the one command CI runs), HARDWARE.md (physical fact,
-installed by scripts/add_hardware.py and extended by the domain packs
-scripts/add_robotics.py and scripts/add_mechanical.py), VAULT.md (the
-read-only contract with an Obsidian vault holding the project's reading,
-installed by scripts/add_vault.py).
-
-### Setup and provenance
-Setup and how to turn modules on: SETUP.md. Provenance of the method:
-REFERENCES.md.
+Read AGENTS.md in full before making changes; nothing above overrides it.
+The report module scaffold is present in this template repository. The
+`code/`, `HARDWARE.md`, and `VAULT.md` modules are absent until installed, so
+their sections in AGENTS.md are inert here even though they're listed above
+for projects built from this template.

@@ -1,6 +1,6 @@
 ---
 status: active
-verified: 2026-08-04
+verified: 2026-08-06
 ---
 # AGENTS.md
 
@@ -84,12 +84,14 @@ Never lazy about: safety checks, unit and calibration handling, validation at
 trust boundaries, anything explicitly requested.
 
 ### Two-part document rules
-Every top-level .md except pointers and logs' entries: frontmatter with
-status (active | superseded) and verified (YYYY-MM-DD), a human section of at
-most 25 non-blank lines before the first "##" heading, and an uncapped
-"## Agent Notes" section for structured detail. Put tables, anchors, and full
-metadata in Agent Notes, never in the human section. When a human confirms a
-document, update its verified date in the same commit.
+Every top-level .md except pointers, README.md, and logs' entries:
+frontmatter with status (active | superseded) and verified (YYYY-MM-DD), a
+human section of at most 25 non-blank lines before the first "##" heading,
+and an uncapped "## Agent Notes" section for structured detail. README.md is
+exempt from frontmatter so the template landing page starts with its title,
+but it still follows the human-section cap and Agent Notes rule. Put tables,
+anchors, and full metadata in Agent Notes, never in the human section. When a
+human confirms a document, update its verified date in the same commit.
 
 ### Report module (ignore unless report/ exists)
 The Typst report is written by the human only. Never produce prose,
