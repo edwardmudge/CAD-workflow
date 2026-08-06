@@ -1,0 +1,13 @@
+# check_docs.py compares CLAUDE.md byte-for-byte against a canonical LF string.
+# Without this, a Windows checkout with core.autocrlf=true fails the pointer
+# check with a message that explains nothing. The check normalises line endings
+# too; this is the belt to that pair of braces.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.pdf binary
+*.step binary
+*.stp binary
+*.stl binary
+*.obj binary

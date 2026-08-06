@@ -1,0 +1,60 @@
+name: checks
+on: [push, pull_request]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_docs.py
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress "**/*.md"
+          fail: true
+
+  code:
+    # Inert unless the optional code module exists. The contract is one line:
+    # code/check.sh exits 0 for pass. Whatever the language, CI runs only that.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: code module checks
+        run: |
+          if [ -f code/check.sh ]; then
+            chmod +x code/check.sh
+            ./code/check.sh
+          elif [ -d code ]; then
+            echo "::error::code/ exists but code/check.sh is missing"
+            exit 1
+          else
+            echo "no code module, skipping"
+          fi
+
+  report:
+    # Inert unless the optional report module exists. A Typst syntax error
+    # should surface here, not on the evening of the deadline.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: probe for report module
+        id: probe
+        run: |
+          if [ -f report/report.typ ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "no report module, skipping"
+          fi
+      - uses: typst-community/setup-typst@v4
+        if: steps.probe.outputs.present == 'true'
+      - name: compile report
+        if: steps.probe.outputs.present == 'true'
+        run: typst compile report/report.typ

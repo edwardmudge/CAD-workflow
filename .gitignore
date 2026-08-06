@@ -1,0 +1,23 @@
+# Typst build output. The source is report/report.typ; the PDF is derived.
+*.pdf
+!report/figures/*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Agent local overrides. Committed settings live in .claude/settings.json.
+.claude/settings.local.json
+
+# Large binaries do not belong in the repo. Listed explicitly rather than by
+# wildcard so a differently-named future dump shows up in git status instead
+# of being silently ignored.
+# assets/scratch/

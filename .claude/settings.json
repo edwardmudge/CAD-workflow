@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(./report/*.typ)",
+      "Write(./report/*.typ)",
+      "Edit(./report/**/*.typ)",
+      "Write(./report/**/*.typ)"
+    ]
+  }
+}
