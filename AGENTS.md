@@ -1,6 +1,6 @@
 ---
 status: active
-verified: 2026-08-06
+verified: 2026-10-13
 ---
 # AGENTS.md
 
@@ -9,11 +9,14 @@ Canonical rules for any AI agent working in this repository. Vendor files
 
 Things I must remember:
 - Capture as I work with one-liners: "decision: ...", "postmortem: ...",
-  "term: ...", "shortcut: ...". The agent files them; I check the echo.
+  "term: ...", "shortcut: ...", "question: ...". The agent files them; I
+  check the echo.
 - Nothing is done until its Verify clause in PLAN.md has a measured result
   and a date. A tick without a number is a guess.
 - Nothing is official until I commit it. Review every diff before staging.
 - When sources disagree, the truth ladder below decides. Reality beats paper.
+- The agent never invents a fact or a number. Where a source is silent, it
+  says so and leaves the gap.
 - If report/ exists: the agent never writes report prose. Its only report
   output is bullet entries in report/report_nodes.md. If it offers wording,
   refuse it.
@@ -31,6 +34,15 @@ when their artefact exists: report (report/), code (code/), hardware
 (HARDWARE.md). A module section that names an absent artefact is inert: do not
 follow it, and do not create paths under it to make it apply.
 
+The governing documents at the root are maintained too, on the terms each
+sets: the logs are appended to and never rewritten, and a change to a rule is
+recorded as a decision rather than made quietly.
+
+Files that results are checked against (raw measurement logs, exported data,
+datasheets, manuals) are read-only to the agent. An edited source cannot
+falsify the result built from it, which is the whole reason to keep it.
+HARDWARE.md is not one of these: it is maintained under its own module rule.
+
 ### Truth ladder
 When sources conflict, higher wins. Propose an update to the loser.
 1. Physical reality: measurements, current code, current CAD, HARDWARE.md.
@@ -43,6 +55,20 @@ When sources conflict, higher wins. Propose an update to the loser.
 Simulation output is not rung 1. It is evidence about a model, and it sits
 wherever the model's own verification puts it. Say which you have.
 
+Agent output is not evidence of anything. A generated table, figure, summary
+or derived file sits below every rung: it is checked against rung 1, not cited
+alongside it. Where it disagrees with its source, the source wins and the
+output is regenerated.
+
+A provisional source (a draft, or a previous revision used before the current
+one exists) ranks below the current one once both exist. Anything built from
+it is pending re-verification until checked against the current one.
+
+A claim resting on a measurement states the number and the sample size: "14
+of 20 runs overshot" beats "it usually overshoots". A claim with no
+measurement behind it is a preference, which is allowed, but say which you
+have.
+
 ### Capture procedures
 On "decision: <text>":
 1. Assign the next D number from DECISIONS.md.
@@ -51,15 +77,26 @@ On "decision: <text>":
 3. Echo the full entry in chat for correction.
 4. Ask at most one question: "Report node?" If yes, and report/ exists,
    append a report_nodes bullet.
+
+DECISIONS.md and POSTMORTEMS.md are append-only. An entry that stops being
+true is superseded by a new numbered entry that says so: never edited in
+place, never deleted, never renumbered. Only the human can order a reset, a
+renumbering or an in-place correction. Record it at the top of the log with
+its date and reason; it is not a precedent for the next one.
+
 On "postmortem: <text>": same, P numbers, POSTMORTEMS.md. Ask severity;
-never guess it. Remind the human of any unticked action items at session end.
+never guess it. The "Related decisions" field must be filled, or a new D
+entry proposed alongside: a postmortem with no decision behind it names a
+problem without changing anything. Remind the human of any unticked action
+items at session end.
 On "term: <word> = <meaning>": add a GLOSSARY.md table row. If a
 near-neighbour term exists, add a "not to be confused with" note.
 On "shortcut: <text>": DECISIONS.md entry of type shortcut with ceiling and
 upgrade path, plus a marker debt-NN to place in the affected artefact.
 On "question: <text>": add a row to the PLAN.md open questions table with
 today's date and status open. Never answer it into the table yourself; the
-answer arrives as a decision, a postmortem, or a measurement.
+answer arrives as a decision, a postmortem, or a measurement. A settled
+question is struck through with what settled it, never deleted.
 
 ### Routing table
 Read before starting, by task type. Announce what you loaded. The fourth
@@ -82,6 +119,28 @@ Before producing anything, stop at the first rung that holds:
 4. Otherwise: the minimum that works, with one runnable check.
 Never lazy about: safety checks, unit and calibration handling, validation at
 trust boundaries, anything explicitly requested.
+
+A script that produced an artefact lives in the repository, never in a session
+scratchpad or temp folder, which is cleaned between sessions. An artefact that
+cannot be rebuilt from the repository alone is not reproducible.
+
+### Never write outside this repository
+Read what you need; write only inside the repository root. Sibling folders and
+application data directories are live workspaces with their own sync and their
+own editors, so a write from here races something that cannot be seen, and the
+damage lands in work that has nothing to do with this project.
+
+This is a rule, not a setting. A general "everything outside" deny cannot be
+expressed in .claude/settings.json: a relative pattern matched nothing and
+failed open, and a wildcard over the parent matched this repository too and
+denied its own files. Deny a specific neighbour by absolute path where one is
+worth it. An absent tool-level block is not permission.
+
+An exception is a numbered decision made on the human's explicit instruction.
+A one-off sets no precedent. If the same one-off is asked for twice, propose a
+standing rule and let the human decide; do not assume it. Any permitted write
+outside runs with the owning application closed, after a backup with a sha1
+list, never over an existing name, and deletes nothing.
 
 ### Two-part document rules
 Every top-level .md except pointers, README.md, and logs' entries:
@@ -165,3 +224,8 @@ On "close out":
    project-specific nouns and would change behaviour on a different project),
    draft one note in lessons/ from lessons/_template.md.
 4. List every active document with a stale verified date for human review.
+5. List every `.keep` whose folder now holds another tracked file
+   (`git ls-files <folder>` shows more than the `.keep`), for the human to
+   delete. Keep any `.keep` whose folder's other contents are all gitignored:
+   it is the only thing holding that folder in git.
+

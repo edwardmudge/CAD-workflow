@@ -1,6 +1,6 @@
 ---
 status: active
-verified: 2026-07-19
+verified: 2026-10-13
 ---
 # Postmortem log
 
@@ -12,5 +12,7 @@ Every rule here traces to a real event. Entry template:
 - Event: what happened, plainly.
 - Detection: how it was noticed. If the answer is luck, that is a finding.
 - Impact: what was damaged, delayed, or put at risk.
+- Related decisions: the D entry that allowed this, and the D entry that now
+  prevents it. If neither exists, raise one.
 - Why this rule prevents recurrence: the causal link.
 - Actions: [ ] change to code, test, or checklist (done when ...)
