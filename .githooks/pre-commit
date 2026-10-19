@@ -1,0 +1,11 @@
+#!/bin/sh
+# Runs code/check.py (doc checks, equations, export, tests) and blocks the
+# commit if anything fails. Enabled once per clone:
+#   git config core.hooksPath .githooks
+#   git config hooks.python <path to the cad-workflow env's python>
+# Emergency bypass: git commit --no-verify. Then fix it and rerun
+# code/check.py before pushing; a bypassed commit is unverified.
+# The other hooks in this folder are Git LFS's own: core.hooksPath replaces
+# .git/hooks, so without them a push would send pointers, not CAD files.
+PY="${PYTHON:-$(git config --get hooks.python)}"
+exec "${PY:-python}" code/check.py

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Doc checks: pointer sync, frontmatter, human-section cap, log numbering,
-plan verify gates, cross-references, report_nodes lint, staleness warnings.
+decision fields, plan verify gates, cross-references, report_nodes lint,
+staleness warnings.
 Exit 1 on errors; warnings never fail the build."""
 import re
 import sys
@@ -28,11 +29,25 @@ TWO_PART = [
     "REFERENCES.md",
     "HARDWARE.md",
     "VAULT.md",
+    "WORKFLOW.md",
 ]
 HUMAN_CAP = 25       # non-blank lines before the first "## " heading
 STALE_DAYS = 90
 
-SKIP_PREFIXES = ("notes/", "lessons/", ".github/", "scripts/")
+# .claude/ holds skill wrappers with their own frontmatter; examples/ holds
+# sources that load_cad_example.py installs; the rest are generated.
+SKIP_PREFIXES = (
+    "notes/", "lessons/", ".github/", "scripts/", ".claude/", "examples/",
+    ".pytest_cache/", "exports/",
+)
+
+# Every D entry carries these, so a parameter change can be traced to the
+# tests it touched and the evidence behind it.
+DECISION_FIELDS = (
+    "Context", "Decision", "Alternatives", "Consequences", "Parameters changed",
+    "Tests added or changed", "Evidence", "Supersedes", "Verified on",
+    "Non-revertible unless",
+)
 SKIP_FILES = set(POINTER_FILES) | {"report/report_nodes.md"}
 FRONTMATTER_EXEMPT = {"README.md"}
 
@@ -143,6 +158,19 @@ for name, kind in (("DECISIONS.md", "D"), ("POSTMORTEMS.md", "P")):
             errors.append(f"{name}:{i}: duplicate entry {m.group(1)}")
         seen.add(ref)
         defined.add(ref)
+
+# 4b. Decision entries carry every field. "none" and "TBC" are answers; a
+#     missing line is not.
+dec = ROOT / "DECISIONS.md"
+if dec.exists():
+    blocks = re.split(r"^(?=##\s+D-\d+)", strip_fences(read(dec)), flags=re.M)
+    for block in blocks:
+        m = re.match(r"##\s+(D-\d+)", block)
+        if not m:
+            continue
+        for field in DECISION_FIELDS:
+            if not re.search(rf"^- {re.escape(field)}:", block, re.M):
+                errors.append(f"DECISIONS.md: {m.group(1)} has no '- {field}:' line")
 
 # 5. PLAN.md: work items carry a state, and a ticked item carries evidence.
 plan = ROOT / "PLAN.md"

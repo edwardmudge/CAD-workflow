@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Set up project environment",
+      "detail": "scripts/setup_env.py: create or repair the conda env, wire the git hooks",
+      "type": "process",
+      "command": "python",
+      "args": ["scripts/setup_env.py"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "runOptions": { "runOn": "folderOpen" },
+      "presentation": { "reveal": "always", "focus": false, "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    }
+  ]
+}

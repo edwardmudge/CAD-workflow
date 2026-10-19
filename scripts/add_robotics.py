@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Robotics pack. Run after add_hardware.py, from the repo root:
+"""Robotics pack. HARDWARE.md ships with the template; from the repo root:
 
-    python scripts/add_hardware.py
     python scripts/add_robotics.py --dof 6
 
 Extends HARDWARE.md with the things that go wrong on articulated machines:

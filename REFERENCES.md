@@ -34,6 +34,10 @@ settled engineering.
 | Small deliberate steps, DRY, one source of truth | | Hunt and Thomas, *The Pragmatic Programmer*, 1999 (20th anniversary ed. 2019). |
 | Append-only logs, commit as the official act | Version control convention | Universal practice; see Chacon and Straub, *Pro Git*, free at git-scm.com/book. |
 | Close-out audit cadence | Retrospectives, definition of done | *The Scrum Guide*, scrumguides.org. |
+| STEP as the interchange format; AP214 now, AP242 as the upgrade path | Product data exchange | ISO 10303-214 (automotive design) and ISO 10303-242 (managed model-based 3D engineering). |
+| Clearance hole table in code/src/project_tools/standards.py | Metric clearance holes, medium series | ISO 273, *Fasteners: clearance holes for bolts and screws*. |
+| requirements.yaml `test` field; test_requirements_trace_to_parts_and_tests | Requirements traceability matrix | As the routing table row above: IEC 61508 family, DO-178C. |
+| cad/equations.txt | SolidWorks global variables linked to an external file | SolidWorks help, "Exporting and Linking Equations to External Files", help.solidworks.com. |
 
 ### Tier 2: community patterns in AI-assisted development
 
@@ -45,6 +49,9 @@ settled engineering.
 | Minimalism ladder wording; marked shortcuts with a named upgrade path | Ponytail ruleset | DietrichGebert/ponytail, github.com/DietrichGebert/ponytail. |
 | Two-part documents; capture loops; truth ladder | Prior version of this method | `WIKI_CONSTRUCTION_GUIDE.md`, this author, distilled from the FR5-StreamingSys project. Unpublished; the de-domained copy lives in the `fairino-fr5-sim` repo under `wiki-template/`. Not reproduced here, so treat this row as provenance, not a citation a reader can follow. |
 | Routing table's "do not treat as current" column | Negative routing: naming what is stale, not only what is current | Boot Matrix in the same prior method. In practice the most-used column there: it stops an agent quoting a superseded measurement it found by reading around. |
+| build123d parts in algebra mode, construction over selection, asserted selector counts | Code-CAD; the topological naming problem | build123d documentation, build123d.readthedocs.io. Selection by index breaks when an upstream change renumbers faces, in any CAD kernel. |
+| CAD module as a whole: params file, one owner per part, tests on exported STEP, staleness manifest, PNG renders for the agent | Code-CAD with an AI agent | A brief written by another agent for this author, October 2026, adapted to this template. No published source; treat as current practice, not settled engineering. |
+| .claude/skills wrappers | Agent skills | Claude Code skills. Kept as pointers only, like CLAUDE.md, so the rules stay in AGENTS.md and Codex loses nothing by reading AGENTS.md alone. |
 
 ### Honest note on the Karpathy LLM Wiki
 
@@ -60,7 +67,9 @@ schema layer that tells the agent how knowledge is maintained, an
 append-only log, knowledge that compounds across sessions rather than being
 re-derived, and periodic linting. The reported failure mode of that pattern
 also applies here: it degrades past roughly 200 files, which is why the
-template ships nine root files and grows only on demand, one module at a time.
+base template ships nine root files and grows only on demand, one module at a
+time. This CAD template adds two (HARDWARE.md, WORKFLOW.md) because every
+CAD project needs them.
 
 ### Not adopted, and why
 
@@ -76,6 +85,14 @@ template ships nine root files and grows only on demand, one module at a time.
   could close the shell-redirect hole in the report firewall, but only for one
   vendor, and a rule that holds in one tool and not another is worse than a
   rule that is plainly a rule. Revisit if a single agent becomes permanent.
+  Exception: .claude/skills wrappers that only point at an AGENTS.md
+  procedure, as CLAUDE.md does. The git pre-commit hook is not vendor
+  machinery; it runs for every agent and every human.
+- From the CAD brief: one ADR file per decision under docs/decisions/
+  (DECISIONS.md gained its fields instead); uv (conda, as in the author's
+  other projects); installing the project code as a package (any checkout
+  must run its own code); requirement limits inside params.yaml (an agent
+  could pass a test by moving the limit).
 - One file per plan item, or an issue tracker: rejected for the same reason as
   adr-tools. PLAN.md is read top to bottom in one pass, which is what makes
   the open questions register get looked at.

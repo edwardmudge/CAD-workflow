@@ -20,6 +20,10 @@ Things I must remember:
 - If report/ exists: the agent never writes report prose. Its only report
   output is bullet entries in report/report_nodes.md. If it offers wording,
   refuse it.
+- CAD: one owner per part; STEP and cad/equations.txt are outputs, never
+  inputs. Requirements (params/requirements.yaml) are mine: the agent never
+  moves a limit to make a test pass. One-liners: "change: ...", "eco: ...",
+  "release check".
 
 ## Agent Notes
 
@@ -29,10 +33,11 @@ code module exists, hardware documentation where the hardware module exists,
 documentation upkeep, and decision capture. You do not make decisions; you
 record them, surface conflicts, and propose options.
 
-This file has a core that always applies and three modules that apply only
+This file has a core that always applies and four modules that apply only
 when their artefact exists: report (report/), code (code/), hardware
-(HARDWARE.md). A module section that names an absent artefact is inert: do not
-follow it, and do not create paths under it to make it apply.
+(HARDWARE.md), CAD (params/params.yaml). A module section that names an absent
+artefact is inert: do not follow it, and do not create paths under it to make
+it apply. This CAD template ships with code, hardware and CAD present.
 
 The governing documents at the root are maintained too, on the terms each
 sets: the logs are appended to and never rewritten, and a change to a rule is
@@ -59,6 +64,10 @@ Agent output is not evidence of anything. A generated table, figure, summary
 or derived file sits below every rung: it is checked against rung 1, not cited
 alongside it. Where it disagrees with its source, the source wins and the
 output is regenerated.
+
+"Current CAD" means a part's master source at HEAD: its .py for build123d,
+its .SLDPRT for SolidWorks. An exported STEP stands in for it only while the
+staleness tests pass; a stale export is a past state, not rung 1.
 
 A provisional source (a draft, or a previous revision used before the current
 one exists) ranks below the current one once both exist. Anything built from
@@ -98,6 +107,40 @@ today's date and status open. Never answer it into the table yourself; the
 answer arrives as a decision, a postmortem, or a measurement. A settled
 question is struck through with what settled it, never deleted.
 
+The three CAD procedures below apply when the CAD module is present. Claude
+Code also exposes them as /change, /eco-impact and /release-check; those
+skills only point here.
+
+On "change: <part.param> <new value> because <reason>":
+1. Read the current value from params/params.yaml and run the eco procedure
+   below for that parameter first, so the impact is known before the edit.
+2. Append a D entry (next D number) with "Parameters changed:
+   part.param: old → new", the reason as Context, and Evidence as given or
+   TBC. Never invent evidence.
+3. Edit params/params.yaml. If the change needs a new or changed test, write
+   it and name it on "Tests added or changed:".
+4. Run code/check.py and render the part (code/scripts/render.py); look at
+   the PNGs. Report every failure verbatim. If a requirement now fails, stop
+   and ask: the fix is the human's call, never an edit to requirements.yaml.
+5. Echo the D entry and the check summary for review. Do not commit.
+
+On "eco: <part id or part.param>":
+1. List the part and every part that depends on it, directly or not
+   (`dependents()` in code/src/project_tools/ownership.py), with each owner.
+2. Re-export the build123d ones and run the tests.
+3. Summarise: what passes, what fails (verbatim), which SolidWorks-owned
+   parts need manual review in SolidWorks, and which cad/equations.txt
+   globals changed. Change nothing else.
+
+On "release check":
+1. Confirm the working tree is clean (git status). If not, list what is
+   uncommitted and stop.
+2. Run code/check.py; it must pass.
+3. Run code/scripts/params_audit.py; every parameter and requirement changed
+   since the last tag must be named by a D entry added since that tag.
+4. List placeholders, TBC Verify clauses and TBC "Verified on" fields that
+   ship in this release. Recommend a tag name; never create or push tags.
+
 ### Routing table
 Read before starting, by task type. Announce what you loaded. The fourth
 column is as binding as the second: those sources describe a past state and
@@ -108,6 +151,10 @@ must not be quoted as current.
 | Hardware or motion change | HARDWARE.md | POSTMORTEMS.md, DECISIONS.md | notes/, any TBC field, sim-only results | code/src/ |
 | Design or architecture | DECISIONS.md | GLOSSARY.md, PLAN.md | notes/, superseded D entries | code/src/ |
 | Planning, what next | PLAN.md | DECISIONS.md | answered open questions, unmeasured Verify clauses | none |
+| Geometry or parameter change | params/params.yaml, parts/ownership.yaml | params/requirements.yaml, DECISIONS.md, HARDWARE.md | exports/ when staleness tests fail, superseded D entries | code/tests/, code/check.py |
+| SolidWorks-owned part | parts/ownership.yaml, WORKFLOW.md | cad/step/manifest.json, DECISIONS.md | a STEP whose SLDPRT has changed since registration | code/scripts/register_sw_step.py |
+| Hardware change | HARDWARE.md | POSTMORTEMS.md, DECISIONS.md | notes/, any TBC field, model-only results | code/src/ |
+| Mechanical or fabrication change | HARDWARE.md | DECISIONS.md, POSTMORTEMS.md | notes/, superseded CAD revisions, nominal values where as-built exists | none |
 | Report support | report/report_nodes.md | DECISIONS.md, POSTMORTEMS.md | notes/ | none |
 | Anything else | GLOSSARY.md | PLAN.md, latest file in notes/ | notes/ older than the newest | none |
 
@@ -178,8 +225,8 @@ that produced it, the measurement and its date, or the CAD file and revision.
 A figure whose provenance nobody can reconstruct is not evidence.
 
 ### Code module (ignore unless code/ exists)
-Source in code/src/, tests in code/tests/. Every non-trivial change leaves one
-runnable check behind.
+Source in code/src/, tests in code/tests/, scripts in code/scripts/. Every
+non-trivial change leaves one runnable check behind.
 
 The project's checks are reachable as `code/check.sh`: one executable script,
 exit 0 for pass, non-zero for fail, no arguments. CI runs exactly that and
@@ -189,6 +236,57 @@ a check the project has.
 
 If code/ is absent, no part of this section applies and no document may
 reference paths under code/.
+
+### CAD module (ignore unless params/params.yaml exists)
+Principles, in order of how often they are broken:
+1. One owner per part. parts/ownership.yaml names it: build123d, solidworks
+   or vendor. Never modify a SolidWorks-owned or vendor part; read its STEP.
+   Never write .SLDPRT, .SLDASM or .SLDDRW files.
+2. STEP is an output, never an input to edit. exports/, cad/equations.txt
+   and every manifest.json are regenerated by scripts, never edited by hand.
+   STEPs in cad/step/ and cad/vendor/ are read-only to the agent.
+3. One source of driving dimensions: params/params.yaml. No dimension is
+   typed into a part file; SolidWorks reads the same values through
+   cad/equations.txt.
+4. Tests run on exported STEP, so every owner is checked the same way.
+5. Decisions are traceable: a parameter change is named in a D entry with
+   the tests it touched and its evidence, at the latest by release.
+
+Requirements (params/requirements.yaml) are limits set by the human. They
+are read-only to the agent like a datasheet: a failing requirement test is
+reported, never fixed by moving the limit or loosening the test.
+
+build123d style, for parts/*.py:
+- Write build123d, not CadQuery. Algebra mode (`Box`, `Cylinder`, `Pos`,
+  `-`, `fillet`), not builder mode.
+- Each part module defines `PARAMS` (required names) and
+  `build(params: dict) -> Part`, with no side effects on import. Live viewing
+  goes under `if __name__ == "__main__":` with ocp_vscode `show`.
+- No magic numbers: every dimension comes from params. Counts of topology
+  (four vertical edges on a box) may appear in assertions.
+- Place features by construction (position a cylinder and subtract it), not
+  by selecting faces of the result. Where selection is unavoidable, filter by
+  geometry (axis, position), never by list index, and assert the count.
+- Read the installed build123d source before using an unfamiliar function.
+  Do not guess method names.
+- Units: mm, g, s, degrees (SolidWorks MMGS). build123d is +Z up; SolidWorks
+  is +Y up.
+
+Working loop. Use the project environment (`conda activate cad-workflow`,
+or the interpreter in `git config hooks.python`); a bare `python` on Windows
+may be another install. If the env is missing or broken, run
+`python scripts/setup_env.py`.
+1. Edit params/params.yaml or the part's build().
+2. python code/scripts/export.py --part ID
+3. python -m pytest
+4. python code/scripts/render.py, then open the PNGs in exports/renders/ and
+   look at them before claiming the geometry is right. A test proves a
+   number; a render catches what no test asked about.
+5. Repeat until green, then python code/check.py before any commit.
+
+Where things live: decisions in DECISIONS.md, working notes in notes/,
+design rules and materials in HARDWARE.md, the full workflow (SolidWorks
+linking, absorbing a SolidWorks edit, releases) in WORKFLOW.md.
 
 ### Hardware module (ignore unless HARDWARE.md exists)
 HARDWARE.md is rung 1 of the truth ladder alongside the code and the CAD: it

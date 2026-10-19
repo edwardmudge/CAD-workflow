@@ -1,82 +1,89 @@
 ---
 status: active
-verified: 2026-08-04
+verified: 2026-10-19
 ---
 # Setup
 
 Day one, about an hour:
-1. Click "Use this template" on GitHub, name the repo, clone it.
-2. Delete the TEMPLATE BANNER block in README.md and write the project paragraph.
-3. Decide which modules this project has. Delete `report/` if nothing is
-   assessed. `code/` and `HARDWARE.md` do not exist until you add them.
-4. Seed GLOSSARY.md with three terms you already argue about.
-5. Record D-01 in DECISIONS.md: the objective and its constraints.
-6. Write S1.1 in PLAN.md, its Verify clause first, before doing the work.
-7. Commit, push, watch the checks pass. Then break something on a branch
-   (edit CLAUDE.md, or tick a PLAN.md item that has no measured result) and
-   watch them fail. A check you have never seen fail is not known to work.
+1. Copy the template ("Use this template" on GitHub, or copy the folder
+   without .git and `git init`). Delete the template banner in README.md.
+2. Rename the env in environment.yml (`name:`), then run
+   `python scripts/setup_env.py`: it creates the env and enables the hooks.
+3. `python code/check.py` passes on the empty template. If it does not, stop
+   and fix the environment first.
+4. Optional, recommended once: the dry run in WORKFLOW.md, on a separate
+   throwaway copy with `python scripts/load_cad_example.py`.
+5. Delete `report/` if nothing is assessed.
+6. Fill the top of HARDWARE.md (item, revision) and the material grade.
+7. Record D-01 in DECISIONS.md: the objective and its constraints. Put the
+   first limits in params/requirements.yaml and write S1.1 in PLAN.md, its
+   Verify clause first.
+8. Add the first part: an ownership.yaml entry, a params.yaml section and
+   parts/<id>.py. examples/sensor_mount/ is the pattern to copy.
+9. Commit, push, watch the checks pass. Then break something on a branch
+   (raise a dimension past a requirement) and watch them fail. A check you
+   have never seen fail is not known to work.
 
 ## Agent Notes
 
 ### Modules
-Nothing here is on by default. Each module is a folder or a file; the rules in
-AGENTS.md and the checks in CI key on its existence and are inert without it.
-
-| Module | Turn it on by | Gives you |
+| Module | State in this template | Gives you |
 |---|---|---|
-| Report | shipped present; delete `report/` to turn it off | Typst report, report_nodes.md, the report firewall, a CI compile job |
-| Code | `code/check.sh`, executable, exit 0 for pass | the CI code job runs it, whatever the language |
-| Hardware core | `python scripts/add_hardware.py` | HARDWARE.md: identity, units, provenance rule, pre-flight, parity table |
+| Report | present; delete `report/` to turn it off | Typst report, report_nodes.md, the report firewall, a CI compile job |
+| Code | present: `code/check.sh`, exit 0 for pass | code/check.py, the CI code job, the pre-commit hook |
+| Hardware core and mechanical | present: HARDWARE.md | identity, units, provenance, pre-flight, parity, CAD register, materials, tolerances, fabrication, inspection |
+| CAD | present: params/, parts/, cad/ | build123d parts, SolidWorks bridge, STEP tests, renders, step_diff |
 | Robotics | `python scripts/add_robotics.py --dof 6` | frames, rotation convention, DH, joint limits, singularities, stop behaviour |
-| Mechanical | `python scripts/add_mechanical.py` | CAD revision register, materials, tolerances and datums, process parameters, inspection |
 | Vault | `python scripts/add_vault.py` | VAULT.md: the read-only contract with an Obsidian vault holding the project's reading |
 
-Run `add_hardware.py` before any domain pack; the packs extend HARDWARE.md and
-refuse to run without it. Packs compose: robotics and mechanical on the same
-machine is the normal case, not a conflict. All are idempotent, so a second run
-changes nothing. To see a filled-in example, run `add_robotics.py` then
-`python scripts/load_fr5_example.py`, which loads a real Fairino FR5 with its
-measurements, one genuine postmortem, and its provenance. Those numbers are
-another machine's. Verify against yours before any powered run.
-
-The vault module is not a domain pack and needs no hardware. It records where
-this project's reading lives, that the agent reads that vault and never writes
-to it, and that the written literature review is report prose like any other.
-Nothing is copied by machine in either direction: an exporter would need the
-vault path committed here and can silently pollute a vault that a git plugin is
-already auto-pulling. Do not install it in this template repository — leaving
-VAULT.md absent keeps the module inert, which is what lets an agent working
-here maintain the design document that lives in the vault.
+The hardware core and mechanical sections are baked into HARDWARE.md rather
+than installed by pack scripts: every CAD project makes physical parts, so
+they always apply. The robotics pack still extends HARDWARE.md and is
+idempotent. The vault module needs no hardware; see the upstream
+engineering-workflow template for its rationale.
 
 ### Writing a new domain pack
-Electronics and instrumentation are not written; the contract is stable enough
-that they slot in. A pack is one script in `scripts/` that:
+A pack is one script in `scripts/` that:
 1. imports the helpers in `scripts/modules/_common.py`,
-2. calls `require_hardware_core()`, so it cannot run standalone,
+2. calls `require_hardware_core()`,
 3. appends its sections to HARDWARE.md through `append_section()`, which is a
    no-op if the section is already there,
 4. seeds GLOSSARY.md only with pairs that cause real bugs in that domain,
 5. adds at most one routing row to AGENTS.md,
 6. seeds no postmortems. A rule with no event behind it does not get followed.
 
-Electronics would carry schematic and netlist revision, BOM and part numbers,
-power budget, register map, bring-up order. Instrumentation would carry DAQ
-configuration, calibration certificates and their expiry, measurement
-uncertainty, and raw-data provenance for figures.
-
 ### Add only when the project needs it
-- `code/src/` and `code/tests/`: the day the first script exists. Point
-  `code/check.sh` at them; CI needs nothing else.
-- `report/refs.bib` and the bibliography line: the day you first cite. Its
-  keys are the citekeys named in VAULT.md, so one string ties the vault note,
-  the bibliography and the report together.
+- `report/refs.bib` and the bibliography line: the day you first cite.
 - A second vendor pointer file (GEMINI.md, .cursorrules): copy CLAUDE.md
   verbatim, then add the filename to POINTER_FILES in scripts/check_docs.py.
+  Codex reads AGENTS.md directly and needs none.
 - `report/sections/`: only past roughly 1500 lines of report.
-- Branch protection with one required review: the day a collaborator joins.
+- A `vendor` part: put the supplier's STEP in cad/vendor/ and list it in
+  ownership.yaml with `owner: vendor` and `source` equal to `step`.
+
+### When a second person joins
+Do none of this while solo; each item costs time on every commit.
+- **File locking.** SolidWorks files cannot be merged, so two people editing
+  one SLDPRT lose work. Add `lockable` to the SolidWorks lines in
+  .gitattributes and `git lfs lock` a file before editing it, or move native
+  files to SolidWorks PDM and keep only STEPs here.
+- **CI on every push.** The code job in .github/workflows/checks.yml already
+  installs code/requirements.txt and runs code/check.sh. Add a job that
+  attaches the exports to a GitHub release on `v*` tags.
+- **Branch protection and pull requests**, one required review, with the D
+  entry reviewed alongside the parameter change it records.
+- **A `responsible` field** (person) in parts/ownership.yaml, and a test that
+  every active part has one.
+- **Team wiki.** Move notes/ to the team wiki, connect it to the agent, and
+  link wiki pages back to D numbers and release tags.
+- **Shared agent conventions.** Agree changes to AGENTS.md as a team and
+  record each one as a D entry.
 
 ### Tools
-Git, VS Code, Typst, Obsidian, any coding agent. Python 3 for the checks; no
-third-party packages, standard library only. On Windows the `python` on PATH
-may be the Microsoft Store stub, which cannot run the checks: use a real
-interpreter (a conda base environment works) and call it by full path.
+Git with Git LFS, VS Code with the Python and OCP CAD Viewer extensions,
+Miniconda, SolidWorks (MMGS units), Typst if the report module is kept, any
+coding agent. scripts/ uses the standard library only; code/ needs the conda
+env. On Windows conda may not be on PATH outside the Anaconda Prompt: call
+`~/miniconda3/Scripts/conda.exe` by full path. The `python` on PATH may be
+another install without build123d, which is why the hook reads
+`git config hooks.python`.

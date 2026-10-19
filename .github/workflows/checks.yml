@@ -23,9 +23,17 @@ jobs:
   code:
     # Inert unless the optional code module exists. The contract is one line:
     # code/check.sh exits 0 for pass. Whatever the language, CI runs only that.
+    # The CAD template's checks need the pinned packages and the LFS content
+    # of SolidWorks-owned STEPs.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r code/requirements.txt
       - name: code module checks
         run: |
           if [ -f code/check.sh ]; then

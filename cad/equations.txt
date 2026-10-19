@@ -1,0 +1,2 @@
+' GENERATED from params/params.yaml by code/scripts/gen_sw_equations.py.
+' Do not edit: change params.yaml and rerun. Units: mm unless stated.

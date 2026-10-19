@@ -1,0 +1,17 @@
+# Create, repair or re-sync with:
+#   python scripts/setup_env.py [--update]
+# which finds conda even when it is not on PATH. By hand:
+#   ~/miniconda3/Scripts/conda.exe env create -f environment.yml
+#
+# Third-party packages only. Project code (code/src, parts/) is found by
+# path, not installed, so any checkout uses its own code. Pins live in
+# code/requirements.txt, which CI installs too.
+# Rename the env when copying this template to a project.
+name: cad-workflow
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - -r code/requirements.txt

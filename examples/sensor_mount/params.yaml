@@ -1,0 +1,10 @@
+
+# EXAMPLE (fictional): sensor mount, installed by scripts/load_cad_example.py.
+sensor_bracket:
+  material: ABS
+  length: {value: 80, description: Overall length}
+  width: {value: 40, description: Overall width}
+  thickness: {value: 6, description: Plate thickness}
+  hole_diameter: {value: 6.6, description: M6 clearance hole, ISO 273 medium}
+  hole_spacing: {value: 60, description: Centre-to-centre hole spacing}
+  corner_radius: {value: 4, description: Vertical edge fillet}

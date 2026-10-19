@@ -1,0 +1,11 @@
+# Tool configuration only. Nothing here is installed: dependencies are pinned
+# in code/requirements.txt and project code is found by path, so every
+# checkout runs its own code.
+
+[tool.pytest.ini_options]
+pythonpath = [".", "code/src"]
+testpaths = ["code/tests"]
+addopts = "-ra"
+
+[tool.pyright]
+extraPaths = ["code/src"]

@@ -1,0 +1,5 @@
+build123d==0.13.0
+ocp_vscode==4.1.0
+pyyaml==6.0.3
+pytest==9.1.1
+matplotlib==3.11.2

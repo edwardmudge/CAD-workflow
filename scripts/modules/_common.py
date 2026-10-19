@@ -33,19 +33,19 @@ def read(path):
 
 
 def write(path, text):
-    path.write_text(text.rstrip("\n") + "\n", encoding="utf-8")
+    """LF on every platform: text mode on Windows would write CRLF."""
+    path.write_text(text.rstrip("\n") + "\n", encoding="utf-8", newline="\n")
 
 
 def require_hardware_core(root):
     """Domain packs extend HARDWARE.md; they never create it.
 
-    Keeping creation in one place is what stops two packs writing two
-    different headers, and what makes 'run add_hardware.py first' the only
-    ordering rule anyone has to remember.
+    In the CAD template HARDWARE.md ships with the hardware core and the
+    mechanical sections already in it, so a missing file means it was deleted.
     """
     hw = root / "HARDWARE.md"
     if not hw.exists():
-        sys.exit("HARDWARE.md not found. Run: python scripts/add_hardware.py")
+        sys.exit("HARDWARE.md not found. Restore it from the template before adding a pack.")
     return hw
 
 

@@ -1,0 +1,12 @@
+  # EXAMPLE (fictional): sensor mount.
+  - id: sensor_bracket
+    owner: build123d
+    source: parts/sensor_bracket.py
+    step: exports/sensor_bracket.step
+    depends_on: []
+  - id: sensor_cover
+    owner: solidworks
+    source: cad/sensor_cover.SLDPRT
+    step: cad/step/sensor_cover.step
+    depends_on: [sensor_bracket]
+    status: placeholder

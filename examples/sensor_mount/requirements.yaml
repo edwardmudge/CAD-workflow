@@ -1,0 +1,13 @@
+  # EXAMPLE (fictional): sensor mount.
+  - id: R-01
+    part: sensor_bracket
+    text: Bracket mass must not exceed 25 g
+    max: 25
+    unit: g
+    source: EXAMPLE, fictional customer brief
+    test: code/tests/test_sensor_bracket.py::test_mass_within_limit
+  - id: R-02
+    part: sensor_bracket
+    text: Mounting holes are ISO 273 medium clearance holes
+    source: EXAMPLE, HARDWARE.md tolerances and fits
+    test: code/tests/test_sensor_bracket.py::test_holes_are_iso_273_medium

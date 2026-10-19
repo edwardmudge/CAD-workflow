@@ -1,0 +1,12 @@
+# Who authors each part. One owner per part; everything else consumes its STEP.
+#
+#   - id: my_part                     # snake_case; also the params.yaml section
+#     owner: build123d                # build123d | solidworks | vendor
+#     source: parts/my_part.py        # .py, .SLDPRT, or the vendor STEP itself
+#     step: exports/my_part.step      # build123d: exports/  solidworks: cad/step/  vendor: cad/vendor/
+#     depends_on: []                  # part ids whose change can affect this one
+#     status: placeholder             # optional; placeholder = not modelled yet
+#
+# A `responsible` field (person) is added when a second person joins; see
+# SETUP.md.
+parts: []

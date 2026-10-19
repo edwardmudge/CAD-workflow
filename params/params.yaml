@@ -1,0 +1,24 @@
+# Driving dimensions: the one source for build123d and, through the
+# generated cad/equations.txt, for SolidWorks. Units are SolidWorks MMGS.
+#
+# Each part has a section named by its id in parts/ownership.yaml:
+#
+#   my_part:
+#     material: ABS
+#     length: {value: 80, description: Overall length}
+#     angle: {value: 30, unit: deg, description: Draft angle}
+#
+# `unit` is optional: mm (default), deg, or count. Limits such as maximum
+# mass are requirements, not parameters; they live in requirements.yaml.
+units: mm
+
+# Material name to density in g/cm3. Each one needs a row in the HARDWARE.md
+# materials table giving its specification and source.
+materials:
+  ABS: 1.05
+
+# Rules every part is checked against. Clearance holes follow ISO 273
+# medium series (table in code/src/project_tools/standards.py).
+design_rules:
+  min_wall: {value: 2.5, description: Minimum wall thickness}
+  min_internal_radius: {value: 0.5, description: Minimum internal corner radius}

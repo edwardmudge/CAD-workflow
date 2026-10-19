@@ -1,0 +1,15 @@
+# Requirements: the limits the design is tested against. Owned by the human.
+# An agent never edits this file to make a failing test pass; changing a
+# limit needs a DECISIONS.md entry that names the requirement id.
+#
+# Each requirement names the test that checks it, so the list doubles as the
+# traceability matrix (code/tests/test_repository.py checks every link).
+#
+#   - id: R-01
+#     part: my_part                # id from parts/ownership.yaml
+#     text: Mass must not exceed 25 g
+#     max: 25                      # optional: max and/or min
+#     unit: g
+#     source: customer spec rev B, section 3
+#     test: code/tests/test_my_part.py::test_mass_within_limit
+requirements: []
